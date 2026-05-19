@@ -1,4 +1,4 @@
-use colored::Colorize;
+use colored::{Color, Colorize};
 use std::{env::args, fs};
 
 fn main() -> std::io::Result<()> {
@@ -16,16 +16,25 @@ fn main() -> std::io::Result<()> {
         if name.starts_with(".") && !(args().any(|arg| arg == "-a")) {
             continue;
         }
-        match path.is_dir() {
-            true => println!("-   {}", name.blue()),
-            false => match name.ends_with(".rs") {
-                true => println!("- {} {}", String::from(" ").on_red(), name.white()),
-                false => match name.ends_with(".ts") {
-                    true => println!("- {} {}", String::from(" ").on_bright_blue(), name.white()),
-                    false => println!("-   {}", name.white()),
-                },
-            },
+        let pathext = name.split(".").last().unwrap_or("");
+        if path.is_dir() {
+            println!("-   {}", name.blue());
+            return Ok(());
         }
+        let icon = match pathext {
+            "ts" => " ".on_bright_blue(),
+            "rs" => " ".on_red(),
+            "js" | "mjs" | "cjs" => " ".on_bright_yellow(),
+            "html" => " ".on_bright_red(),
+            "kt" | "ktc" => " ".on_bright_magenta().bright_blue(),
+            "java" => " ".on_red(),
+            "tsx" | "jsx" => " ".on_blue(),
+            "json" | "toml" | "yaml" | "yml" => " ".on_black().bright_yellow(),
+            "py" => " ".on_blue().bright_yellow(),
+            "db" | "sql" => " ".on_black().bright_yellow(),
+            _ => " ".on_white(),
+        };
+        println!("- {} {}", icon, name);
     }
     Ok(())
 }
